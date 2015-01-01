@@ -10,20 +10,42 @@ var defaultOptions = {
 		noise: 1
 	};
 
-module.exports = function(options) {
-	var options = options || {},
-		width = options.width || defaultOptions.width,
-		height = options.height || defaultOptions.height;	
+module.exports = function(opts) {
+	var options = merge_options(defaultOptions, opts||{}),
+		width = options.width,
+		height = options.height;
 
-	/* Generate random number from min to max */
+	/**
+	* Generate random number from min to max 
+	* @param min 
+	* @param max
+	* @returns a random number between min and max
+	*/
 	function randomIntFromInterval(min,max) {
 		return Math.floor(Math.random()*(max-min+1)+min);
 	}
 
-	/* Generate random text for captcha */
+	/**
+	* Overwrites obj1's values with obj2's and adds obj2's if non existent in obj1
+	* @param obj1
+	* @param obj2
+	* @returns a new object based on obj1 and obj2
+	*/
+	function merge_options(obj1,obj2){
+		var objAux = {};
+		for (var attrname in obj1) { objAux[attrname] = obj1[attrname]; }
+		for (var attrname in obj2) { objAux[attrname] = obj2[attrname]; }
+		
+		return objAux;
+	}
+
+	/**
+	* Generate random text for captcha 
+	* @returns a random text
+	*/
 	function generateRandomText() {
-		var dictionary = options.dictionary || defaultOptions.values,
-			captchaLength = options.length || defaultOptions.length,
+		var dictionary = options.values,
+			captchaLength = options.length,
 			result = '',
 			random, idx;
 		for(var i=0;i<captchaLength;i++) {
@@ -35,7 +57,11 @@ module.exports = function(options) {
 	}
 
 	
-	/* Convert decimal number to hexadecimal */
+	/**
+	*  Convert decimal number to hexadecimal 
+	* @param number: number to convert
+	* @returns hex value of decimal number
+	*/
 	function decimalToHexString(number){
 		if (number < 0) {
 			number = 0xFFFFFFFF + number + 1;
@@ -43,7 +69,10 @@ module.exports = function(options) {
 		return number.toString(16).toUpperCase();
 	}
 
-	/* Function that returns a random color */
+	/**
+	* Function that returns a random color 
+	* @returns a random rgb color
+	*/
 	function randomColor() {
 		var r = randomIntFromInterval(0, 255),
 			g = randomIntFromInterval(0, 255),
@@ -56,14 +85,21 @@ module.exports = function(options) {
 		return '#' + rHex + gHex + bHex;	
 	}
 
-	/* Function that returns a random color in gray scale */
+	/**
+	* Function that returns a random color in gray scale 
+	* @returns a random gray scale rgb value;
+	*/
 	function randomGray() {
 		var random = randomIntFromInterval(0,14),
 			hex = decimalToHexString(random);
 			return '#' + hex + hex + hex;
 	}
 
-	/*  */
+	/**
+	* Function that generate noise
+	* @param level: level of noise points
+	* @returns svg points for noise
+	*/
 	function generateNoise(level) {
 		var noise = '', x, y, xEnd;
 		for(var i=0; i<level * 25; i++) {
@@ -75,7 +111,11 @@ module.exports = function(options) {
 		return noise;
 	}
 
-	/* Add lines */
+	/**
+	* Function that generate lines
+	* @param level: level of noise points
+	* @returns svg points for noise
+	*/
 	function generateLines(num) {
 		var result = '',
 			start, endX, endY, middlePoint1, middlePoint2;
@@ -90,14 +130,17 @@ module.exports = function(options) {
 		return result;
 	}
 
-	/* Function that returns svg text*/
+	/**
+	* Function that returns svg text
+	* @params text to generate letters
+	* @returns svg letters
+	*/
 	function stringToSVG(text){
 		var svgText = '',
-			hasColor = options.color || defaultOptions.color,
+			hasColor = options.color,
 			x = 5, 
 			y = 30,
-			color,
-			size;
+			color,size,rotation,jump;
 
 		for(var i=0;i<text.length; i++) {
 			if(hasColor) {
@@ -106,7 +149,7 @@ module.exports = function(options) {
 				color = randomGray();
 			}
 			rotation = randomIntFromInterval(-25,25);
-			size = randomIntFromInterval(15,27);
+			size = randomIntFromInterval(20,height - 10);
 			jump = randomIntFromInterval(-5,5);
 
 			svgText += '<text style="fill:' + color + ';" x="' + x +'" y="' + y + '" font-size="' + size  + '" ';
@@ -118,9 +161,14 @@ module.exports = function(options) {
 		return svgText;
 	}
 
+	/**
+	* Function that returns svg text
+	* @params text to generate letters
+	* @returns object with generated svg and captcha value
+	*/
 	function createSVG(text) {
-		var lines = options.lines || defaultOptions.lines,
-			noise = options.noise || defaultOptions.noise,
+		var lines = options.lines,
+			noise = options.noise,
 			xml = '<?xml version="1.0" encoding="utf-8"?>';
     
 		//headers
@@ -145,6 +193,10 @@ module.exports = function(options) {
 		return {svg: xml, captchaValue: text};
 	}
 
+	/**
+	* Function that generate random text and svg object
+	* @returns object with generated svg and captcha value
+	*/
 	function generateCaptcha() {
 		var text = generateRandomText();
 		return createSVG(text);
