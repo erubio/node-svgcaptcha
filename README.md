@@ -7,9 +7,12 @@ A npm module to generate a captcha with svg image
 How to use:
 ================
 Install npm package:
-	npm install node-svgcaptcha
 
+	npm install node-svgcaptcha
+	
 In your code:
+
+
 app.get('/captcha', function(req, res){
 	var captcha = require('node-svgcaptcha');
 	var options = {};//Set your configuration in this object
