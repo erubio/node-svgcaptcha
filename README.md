@@ -12,21 +12,20 @@ Install npm package:
 	
 In your code:
 
+	app.get('/captcha', function(req, res){
 
-app.get('/captcha', function(req, res){
-
-	var captcha = require('node-svgcaptcha');
-	var options = {};//Set your configuration in this object
-	var genCaptcha = captcha(options);
-	
-	if(req.session){//save value in session
-		req.session.captcha = genCaptcha.captchaValue;
-	}
-	
-	//return svg to render in the browser
-	res.set('Content-Type', 'image/svg+xml');
-	res.send(genCaptcha.svg);	
-});
+		var captcha = require('node-svgcaptcha');
+		var options = {};//Set your configuration in this object
+		var genCaptcha = captcha(options);
+		
+		if(req.session){//save value in session
+			req.session.captcha = genCaptcha.captchaValue;
+		}
+		
+		//return svg to render in the browser
+		res.set('Content-Type', 'image/svg+xml');
+		res.send(genCaptcha.svg);	
+	});
 
 
 Options:
